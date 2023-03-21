@@ -6,15 +6,17 @@ import userLogsRouter from "./users.logs";
 
 const router = express.Router();
 
+// >Handle sub-endpoints
 router.use(userExercisesRouter);
 router.use(userLogsRouter);
 
-router.get("/", (_req, res) => {
-  res.send("List of users\n");
-});
-
+// User creation
 router.post("/", (req, res) => {
   res.json({ user: req.body.username });
+});
+
+router.get("/", (_req, res) => {
+  res.send("List of users\n");
 });
 
 export default router;
