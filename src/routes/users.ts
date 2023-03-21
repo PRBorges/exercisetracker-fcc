@@ -41,8 +41,13 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", (_req, res) => {
-  res.send("List of users\n");
+// Get list of users
+router.get("/", async (_req, res) => {
+  try {
+    res.json(await MUser.find({}));
+  } catch (err) {
+    console.log("Error connecting to the database: ", err);
+  }
 });
 
 export default router;
