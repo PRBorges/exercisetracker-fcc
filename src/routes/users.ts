@@ -15,38 +15,34 @@ router.use(userLogsRouter);
 // The project description does not say anything about case sensitivity,
 // valid usernames, nor what to do if the user already exists
 router.post("/", async (req, res) => {
-  const paaramUserName = req.body.username;
-  const username = paaramUserName.toLowerCase();
+  const username = req.body.username.toLowerCase();
 
   try {
-    const existingUser = await MUser.findOne({ username });
+    const existingUser = await MUser.findOne({ username }).select("_id");
     if (existingUser) {
-      res.json({
-        username: paaramUserName,
+      res.status(200).json({
+        username,
         _id: existingUser._id,
-        justCreated: false,
       });
     } else {
-      const newUser = new MUser({ username });
+      const newUser = new MUser({ username, log: [] });
       await newUser.save();
-      res.json({
-        username,
-        _id: newUser._id,
-        justCreated: true,
-      });
+      const { username, _id } = newUser;
+      res.status(201).json(username, _id);
     }
   } catch (err) {
-    res.status(500).send("Error connecting to the database");
-    console.log("Error connecting to the database: ", err);
+    res.status(500).send("Database error");
+    console.log("Database error: ", err);
   }
 });
 
 // Get list of users
 router.get("/", async (_req, res) => {
   try {
-    res.json(await MUser.find({}));
+    res.json(await MUser.find().select("username _id"));
   } catch (err) {
-    console.log("Error connecting to the database: ", err);
+    console.log("Database error: ", err);
+    res.status(500).send("Database error");
   }
 });
 
