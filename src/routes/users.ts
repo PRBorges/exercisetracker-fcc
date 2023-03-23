@@ -27,8 +27,7 @@ router.post("/", async (req, res) => {
     } else {
       const newUser = new MUser({ username, log: [] });
       await newUser.save();
-      const { username, _id } = newUser;
-      res.status(201).json(username, _id);
+      res.status(201).json({ username, _id: newUser._id });
     }
   } catch (err) {
     res.status(500).send("Database error");
