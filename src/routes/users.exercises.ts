@@ -1,24 +1,30 @@
 // users.exercises.ts
 
 import express from "express";
+import mongoose from "mongoose";
 import MUser from "../models/user";
 
 const userExercisesRouter = express.Router();
 
 // Add exercise to user's log
 userExercisesRouter.post("/:_ID/exercises", async (req, res) => {
-  const duration = Number(req.body.duration);
+  if (!mongoose.Types.ObjectId.isValid(req.params._ID)) {
+    res.status(400).send("Error: invalid _ID");
+    console.log("Bad request: invalid _ID");
+    return;
+  }
 
+  const duration = Number(req.body.duration);
   if (!Number.isInteger(duration) || duration <= 1) {
     res.status(400).send("Error: invalid duration");
-    console.log("Bad request: Got invalid duration for exercise");
+    console.log("Bad request: invalid duration for exercise");
     return;
   }
 
   const dateComponents = req.body.date ? validDateOrNull(req.body.date) : null;
   if (req.body.date && !dateComponents) {
     res.status(400).send("Error: invalid date");
-    console.log("Bad request: Got invalid date for exercise");
+    console.log("Bad request: invalid date for exercise");
     return;
   }
 
