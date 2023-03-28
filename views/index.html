@@ -11,14 +11,14 @@
 <body>
   <div class="container">
     <h1>Exercise tracker</h1>
+    <h2>Create a New User</h2>
     <form action="/api/users" method="post">
-      <h2>Create a New User</h2>
       <p><code>POST /api/users</code></p>
       <input id="uname" type="text" name="username" placeholder="username" />
       <input type="submit" value="Submit" />
     </form>
+    <h2>Add exercises</h2>
     <form id="exercise-form" method="post">
-      <h2>Add exercises</h2>
       <p><code>POST /api/users/:_id/exercises</code></p>
       <input id="uid" type="text" name=":_id" placeholder=":_id" />
       <input id="desc" type="text" name="description" placeholder="description*" />
@@ -28,12 +28,22 @@
     </form>
     <section>
       <h2>Exercise log</h2>
-      <p>
-        <strong>GET user's exercise log: </strong>
-        <code>GET /api/users/:_id/logs?[from][&amp;to][&amp;limit]</code>
-      </p>
-      <p><strong>[ ]</strong> = optional</p>
-      <p><strong>from, to</strong> = dates (yyyy-mm-dd); <strong>limit</strong> = number</p>
+
+      <form id="log-form" method="get">
+        <p>
+          <strong>GET user's exercise log: </strong>
+          <code>GET /api/users/:_id/logs?[from][&amp;to][&amp;limit]</code>
+        </p>
+        <p><strong>[ ]</strong> = optional</p>
+        <p><strong>from, to</strong> = dates (yyyy-mm-dd); <strong>limit</strong> = number</p>
+
+        <input id="log-uid" type="text" name=":_id" placeholder=":_id*" />
+        <input id="from-date" type="text" name="from" placeholder="From date (yyyy-mm-dd)" />
+        <input id="to-date" type="text" name="to" placeholder="To date (yyyy-mm-dd)" />
+        <input id="limit" type="text" name="limit" placeholder="max number of exercises" />
+        <input type="submit" value="Submit" />
+      </form>
+
     </section>
   </div>
   <script>
@@ -45,6 +55,17 @@
 
       exerciseForm.submit();
     });
+
+    // log form 
+    const logForm = document.getElementById("log-form");
+
+    logForm.addEventListener("submit", () => {
+      const userId = document.getElementById("log-uid").value;
+      logForm.action = `/api/users/${userId}/logs`;
+
+      exerciseForm.submit();
+    });
+
   </script>
 </body>
 

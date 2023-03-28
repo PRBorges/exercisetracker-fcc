@@ -69,7 +69,7 @@ userLogsRouter.get("/:_ID/logs", async (req, res) => {
 });
 
 function validDateOrNull(date: any): Date | null {
-  if (date === undefined) {
+  if (date === undefined || date === "") {
     return null;
   }
   if (typeof date !== "string") {
@@ -98,11 +98,11 @@ function bounds(fromDate: Date | null, toDate: Date | null): DateBound {
   }
 }
 
-function validLimitOrNull(qParam: any): number | null {
-  if (qParam === undefined) {
+function validLimitOrNull(arg: any): number | null {
+  if (arg === undefined || arg === "") {
     return null;
   }
-  const limit = Number(qParam);
+  const limit = Number(arg);
   if (isNaN(limit) || !Number.isInteger(limit)) {
     throw new Error("Invalid limit");
   }
