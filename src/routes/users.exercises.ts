@@ -10,7 +10,7 @@ const userExercisesRouter = express.Router();
 userExercisesRouter.post("/:_ID/exercises", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(req.params._ID)) {
     res.status(400).send("Error: invalid _ID");
-    console.log("Bad request: invalid _ID");
+    console.log("Bad request: invalid _ID for exercise");
     return;
   }
 
@@ -66,7 +66,7 @@ userExercisesRouter.post("/:_ID/exercises", async (req, res) => {
 // Returns [year, month, day] if checks are ok, null otherwise
 // Does not check valid days according to the month nor leap years
 // Accepts all (non-negative) years
-function validDateOrNull(dateStr: string): [number, number, number] | null {
+export function validDateOrNull(dateStr: string): [number, number, number] | null {
   const c = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 
   if (!c) {
