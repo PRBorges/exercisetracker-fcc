@@ -9,6 +9,10 @@ type DateBound =
   | { $lte: [string, Date] }
   | { $and: DateBound[] };
 
+// interface IResultExercise extends Omit<IExercise, "date"> {
+//   date: string;
+// }
+
 const userLogsRouter = express.Router();
 
 userLogsRouter.get("/:_ID/logs", async (req, res) => {
@@ -64,6 +68,12 @@ userLogsRouter.get("/:_ID/logs", async (req, res) => {
     }
 
     const user = docs[0];
+    // Change date format in log
+    user.log = user.log.map((exercise: any) => {
+      exercise.date = exercise.date.toDateString();
+      return exercise;
+    });
+
     res.status(200).json({ ...user, count: user.log.length });
   } catch (_err) {}
 });
