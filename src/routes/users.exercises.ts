@@ -2,81 +2,68 @@
 
 import express from "express";
 import mongoose from "mongoose";
+import { body, validationResult } from "express-validator";
 import MUser from "../models/user";
+import adjustDate from "../adjustDate";
 
 const userExercisesRouter = express.Router();
 
 // Add exercise to user's log
-userExercisesRouter.post("/:_ID/exercises", async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params._ID)) {
-    res.status(400).send("Error: invalid _ID");
-    console.log("Bad request: invalid _ID for exercise");
-    return;
-  }
-
-  const duration = Number(req.body.duration);
-  if (!Number.isInteger(duration) || duration <= 1) {
-    res.status(400).send("Error: invalid duration");
-    console.log("Bad request: invalid duration for exercise");
-    return;
-  }
-
-  const dateComponents = req.body.date ? validDateOrNull(req.body.date) : null;
-  if (req.body.date && !dateComponents) {
-    res.status(400).send("Error: invalid date");
-    console.log("Bad request: invalid date for exercise");
-    return;
-  }
-
-  const date = dateComponents
-    ? new Date(dateComponents[0], dateComponents[1] - 1, dateComponents[2])
-    : new Date();
-
-  try {
-    const user = await MUser.findByIdAndUpdate(req.params._ID, {
-      $push: {
-        log: {
-          description: req.body.description,
-          duration,
-          date,
-        },
-      },
-    });
-
-    if (!user) {
-      res.status(400).send("Error: user not found");
-      console.log("Bad request: _id does not exist to add exercise");
+userExercisesRouter.post(
+  "/:_ID/exercises",
+  [
+    body("description").isString(),
+    body("duration").isInt({ gt: 0 }).toInt(),
+    body("date")
+      .optional({ checkFalsy: true })
+      .isISO8601({ strict: true })
+      .toDate(),
+  ],
+  async (req, res) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params._ID)) {
+      res.status(400).json({ error: "Invalid _ID" });
+      console.log("Bad request: invalid _ID for exercise");
       return;
     }
 
-    res.status(201).json({
-      username: user.username,
-      _id: user._id,
-      description: req.body.description,
-      duration,
-      date: date.toDateString(),
-    });
-  } catch (err) {
-    res.status(500).send("Database error");
-    console.log("Database error: ", err);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      console.log("Bad exercise request: ", errors.array());
+      return;
+    }
+
+    try {
+      const { description, duration } = req.body;
+      const date = req.body.date ? adjustDate(req.body.date) : new Date();
+      const user = await MUser.findByIdAndUpdate(req.params._ID, {
+        $push: {
+          log: {
+            description,
+            duration,
+            date,
+          },
+        },
+      });
+
+      if (!user) {
+        res.status(400).send("Error: user not found");
+        console.log("Bad request: _id does not exist to add exercise");
+        return;
+      }
+
+      res.status(201).json({
+        username: user.username,
+        _id: user._id,
+        description,
+        duration,
+        date: date.toDateString(),
+      });
+    } catch (err) {
+      res.status(500).send("Database error");
+      console.log("Database error: ", err);
+    }
   }
-});
-
-// Do some checks on the given string date
-// Returns [year, month, day] if checks are ok, null otherwise
-// Does not check valid days according to the month nor leap years
-// Accepts all (non-negative) years
-export function validDateOrNull(dateStr: string): [number, number, number] | null {
-  const c = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-
-  if (!c) {
-    return null;
-  }
-
-  const [_date, year, month, day] = c.map(Number);
-  return month > 0 && month < 13 && day > 0 && day < 32
-    ? [year, month, day]
-    : null;
-}
+);
 
 export default userExercisesRouter;
