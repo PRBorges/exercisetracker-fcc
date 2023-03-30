@@ -88,14 +88,19 @@ userLogsRouter.get(
       });
 
       res.status(200).json({ ...user, count: user.log.length });
-    } catch (_err) {}
+    } catch (err) {
+      res.status(500).json({ error: "Database error" });
+      console.log("Database error in log request: ", err);
+    }
   }
 );
 
+// Builds date bounds for exercise filter aggregate stage
 function bounds(fromDate: Date | null, toDate: Date | null): DateBound {
   const fromBound: DateBound | null = fromDate
     ? { $gte: ["$$exercise.date", adjustDate(fromDate)] }
     : null;
+  // This date time should probably be set to 11:59:59 PM
   const toBound: DateBound | null = toDate
     ? { $lte: ["$$exercise.date", adjustDate(toDate)] }
     : null;
