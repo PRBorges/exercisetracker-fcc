@@ -45,10 +45,10 @@ router.post("/", async (req, res) => {
 // Get list of users
 router.get("/", async (_req, res) => {
   try {
-    res.json(await MUser.find().select("username _id"));
+    res.json(await MUser.find({}, "username _id"));
   } catch (err) {
+    res.status(500).json({ error: "Database error" });
     console.log("Database error: ", err);
-    res.status(500).send("Database error");
   }
 });
 
