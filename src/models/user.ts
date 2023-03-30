@@ -13,11 +13,14 @@ export interface IUser extends Document {
   log: [IExercise];
 }
 
-const ExerciseSchema = new Schema<IExercise>({
-  description: { type: String, required: true },
-  duration: { type: Number, required: true },
-  date: { type: Date, required: true },
-});
+const ExerciseSchema = new Schema<IExercise>(
+  {
+    description: { type: String, required: true },
+    duration: { type: Number, required: true },
+    date: { type: Date, required: true },
+  },
+  { _id: false }
+);
 
 const UserSchema = new Schema<IUser>({
   username: { type: String, required: true, unique: true },
