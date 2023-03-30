@@ -47,8 +47,11 @@ userExercisesRouter.post(
       });
 
       if (!user) {
-        res.status(400).send("Error: user not found");
-        console.log("Bad request: _id does not exist to add exercise");
+        res.status(400).json({ error: "User not found" });
+        console.log(
+          "Bad request: _id does not exist to add exercise: ",
+          req.body._ID
+        );
         return;
       }
 
@@ -60,7 +63,7 @@ userExercisesRouter.post(
         date: date.toDateString(),
       });
     } catch (err) {
-      res.status(500).send("Database error");
+      res.status(500).json({ error: "Database error" });
       console.log("Database error: ", err);
     }
   }
