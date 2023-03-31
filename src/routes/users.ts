@@ -18,6 +18,11 @@ router.use(userLogsRouter);
 // No format checks are made
 // Already created user names are accepted
 router.post("/", async (req, res) => {
+  if (req.body.username.length === 0) {
+    res.status(400).json({ error: "User name can not be empty" });
+    console.log("Bad user creation request: username empty");
+    return;
+  }
   const username = req.body.username.toLowerCase();
 
   try {
