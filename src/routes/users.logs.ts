@@ -47,7 +47,10 @@ userLogsRouter.get(
     const { from, to, limit } = req.query;
 
     // Build the query
-    const pipeline: PipelineStage[] = [{ $match: { _id: userID } }];
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: userID } },
+      { $project: { __v: 0 } },
+    ];
 
     if (from || to) {
       const dateBounds = bounds(from, to);
@@ -82,6 +85,8 @@ userLogsRouter.get(
 
       const user = docs[0];
       // Change date format in log
+      // This should be made with $map and $function
+      // but free mongo atlas does not allow scripting
       user.log = user.log.map((exercise) => {
         exercise.date = exercise.date.toDateString();
         return exercise;
